@@ -1,3 +1,15 @@
+// time-function
+function getTime(time){
+
+    const hour = parseInt(time/3600)
+    let remainingSecond = time % 3600
+    const minute = parseInt(remainingSecond/60)
+    remainingSecond = remainingSecond % 60
+
+    return `${hour} hour ${minute} minute ${remainingSecond} seconds ago`;
+}
+
+
 // Fetch, load and show categories
 
 // Create load categories
@@ -8,6 +20,13 @@ const loadCategories = () => {
         .catch(error => console.log(error))
 }
 
+const loadCategoryVideo = (id) =>{
+
+    fetch(`https://openapi.programming-hero.com/api/phero-tube/category/${id}`)
+    .then(res => res.json())
+    .then(data => displayVideos(data.category))
+    .catch(error => console.log(error))
+}
 
 // Creare display categories
 
@@ -15,11 +34,17 @@ const displayCategories = (categories) => {
     const categoryContainer = document.getElementById("categories");
     categories.forEach(element => {
         // console.log(element);
-        const button = document.createElement('button');
-        button.classList = "btn";
-        button.innerText = element.category;
+        const buttonContainer = document.createElement('div');
+        buttonContainer.innerHTML = `
+        
+        <button onclick="loadCategoryVideo(${element.category_id})" class="btn">
+        ${element.category}
+        </button>
 
-        categoryContainer.append(button);
+
+        `
+
+        categoryContainer.append(buttonContainer);
     });
 }
 
@@ -62,16 +87,22 @@ const loadVideos = () => {
 
 const displayVideos = (videos) => {
     const videoContainer = document.getElementById("videos");
+    videoContainer.innerHTML = "";
+    
     videos.forEach(element => {
         console.log(element);
         const card = document.createElement('div');
         card.classList = "card card-compact";
         card.innerHTML = `
         
-  <figure class="h-[250px]">
+  <figure class="h-[250px] relative">
     <img class="h-full w-full object-cover"
       src=${element.thumbnail}
       alt="" />
+
+      ${element.others.posted_date?.length == 0? "" : `<span class="absolute right-2 bottom-2 bg-black rounded p-1 text-white text-xs">
+      ${getTime(element.others.posted_date)}
+      </span>`}
   </figure>
   <div class="px-0 py-2 flex gap-2">
         <div>
@@ -85,7 +116,8 @@ const displayVideos = (videos) => {
         <p class="text-gray-400">
         ${element.authors[0].profile_name}
         </p>
-        <img class="w-5" src="https://img.icons8.com/?size=48&id=D9RtvkuOe31p&format=png" />
+        
+        ${element.authors[0].verified == true ? `<img class="w-5" src="https://img.icons8.com/?size=48&id=D9RtvkuOe31p&format=png" />` : ""}
         
         </div>
         <p>
